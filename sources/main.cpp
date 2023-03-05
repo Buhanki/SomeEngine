@@ -7,16 +7,19 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+void processInput(GLFWwindow *window);
 
 int main(void)
 {
     GLFWwindow* window;
  
-    /* Initialize the library */
     if (!glfwInit())
         return -1;
-
-    /* Create a windowed mode window and its OpenGL context */
+    
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    
     window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
     if (!window)
     {
@@ -24,15 +27,11 @@ int main(void)
         return -1;
     }
 
-    /* Make the window's context current */
     glfwMakeContextCurrent(window);
     
-    if(!gladLoadGL())
-    {
-        std::cout << "Failed Glad" <<std::endl;
+    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return -1;
-    }
-
+        
     glClearColor(0.5, 0.5, 0.5, 1);
 
     IMGUI_CHECKVERSION();
@@ -42,22 +41,17 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-    /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        /* Render here */
+        processInput(window);
+
 
         ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
-        /* Swap front and back buffers */
-        
         ImGui::Begin("Imgui window");
         ImGui::Text("Hello");
         ImGui::End();
-
-        
         ImGui::Render();
 		        
         glClear(GL_COLOR_BUFFER_BIT);
@@ -65,7 +59,6 @@ int main(void)
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
-        /* Poll for and process events */
         glfwPollEvents();
     }
         
@@ -75,5 +68,11 @@ int main(void)
 
     glfwTerminate();
     return 0;
+}
+
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
 
