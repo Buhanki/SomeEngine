@@ -3,9 +3,6 @@ cmake_minimum_required(VERSION 3.2)
 set(PROJECT_NAME SomeEngine)
 project(${PROJECT_NAME} C CXX)
 
-#find_package(glfw3 REQUIRED)
-#find_package(imgui REQUIRED)
-
 add_executable(${PROJECT_NAME} 
   sources/main.cpp
   sources/imgui.cpp
@@ -14,6 +11,7 @@ add_executable(${PROJECT_NAME}
   sources/imgui_impl_opengl3.cpp
   sources/imgui_tables.cpp
   sources/imgui_widgets.cpp
+  sources/stb_image.cpp
   )
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
