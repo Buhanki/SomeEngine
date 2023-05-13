@@ -17,8 +17,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 void processInput(GLFWwindow *window);
-
-const GLuint WIDTH = 800, HEIGHT = 600;
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+const GLuint WIDTH = 1920, HEIGHT = 1080;
 
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -26,6 +27,13 @@ glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+bool firstMouse = true;
+float yaw   = -90.0f;
+float pitch =  0.0f;
+float lastX =  1920.0f / 2.0;
+float lastY =  1080.0 / 2.0;
+float fov   =  45.0f;
 
 int main()
 {
@@ -36,7 +44,7 @@ int main()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   
-  GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Render Engine OpenGL", glfwGetPrimaryMonitor(), NULL);
   
   if (!window) {
     glfwTerminate();
@@ -44,6 +52,9 @@ int main()
   }
   
   glfwMakeContextCurrent(window);
+  glfwSetCursorPosCallback(window, mouse_callback);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetScrollCallback(window, scroll_callback);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     return -1;
@@ -160,18 +171,18 @@ int main()
   glGenerateMipmap(GL_TEXTURE_2D);
   stbi_image_free(data);
 
-  IMGUI_CHECKVERSION();
+  /*IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO(); (void)io;
   ImGui::StyleColorsDark();
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init("#version 460"); 
-  ImVec4 clear_color = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+  ImVec4 clear_color = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);*/
   
   ourShader.use();
   glUniform1i(glGetUniformLocation(ourShader.ID, "ourTexture1"), 0);
   ourShader.setInt("ourTexture2", 1);
-
+  glm::vec3 direction;
 
   while (!glfwWindowShouldClose(window)) {
     
@@ -181,15 +192,16 @@ int main()
     
     processInput(window);
 
-    ImGui_ImplOpenGL3_NewFrame();
+    /*ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGui::Begin("Imgui window");
     ImGui::ColorEdit3("clear color", (float*)&clear_color);
     ImGui::End();
-    ImGui::Render();
+    ImGui::Render();*/
 
-    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    //glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glActiveTexture(GL_TEXTURE0);
@@ -211,9 +223,13 @@ int main()
     glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);*/
     
     view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    
+    direction.x = cos(glm::radians(yaw));
+    direction.z = sin(glm::radians(yaw));
+
     //model = glm::rotate(model,  glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    projection = glm::perspective(glm::radians(45.0f), (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); 
+    projection = glm::perspective(glm::radians(fov), (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); 
 
     GLint modelLoc = glGetUniformLocation(ourShader.ID, "model");
     GLint viewLoc = glGetUniformLocation(ourShader.ID, "view");
@@ -236,15 +252,15 @@ int main()
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     //glBindVertexArray(0);
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
-  ImGui_ImplOpenGL3_Shutdown();
+  /*ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
-  ImGui::DestroyContext();
+  ImGui::DestroyContext();*/
 
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
@@ -261,8 +277,6 @@ void processInput(GLFWwindow *window)
   
   float cameraSpeed = 2.5f * deltaTime;
 
-  const float cameraSpeed = 0.05f;
-
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     cameraPos += cameraSpeed * cameraFront;
   
@@ -274,4 +288,50 @@ void processInput(GLFWwindow *window)
   
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.1f; // change this value to your liking
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f;
 }
