@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <sstream>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -55,6 +56,7 @@ int main()
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetScrollCallback(window, scroll_callback);
+  glfwSwapInterval(0);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     return -1;
@@ -171,13 +173,13 @@ int main()
   glGenerateMipmap(GL_TEXTURE_2D);
   stbi_image_free(data);
 
-  /*IMGUI_CHECKVERSION();
+  IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO(); (void)io;
   ImGui::StyleColorsDark();
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init("#version 460"); 
-  ImVec4 clear_color = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);*/
+  ImVec4 clear_color = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
   
   ourShader.use();
   glUniform1i(glGetUniformLocation(ourShader.ID, "ourTexture1"), 0);
@@ -192,13 +194,14 @@ int main()
     
     processInput(window);
 
-    /*ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGui::Begin("Imgui window");
     ImGui::ColorEdit3("clear color", (float*)&clear_color);
+    ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     ImGui::End();
-    ImGui::Render();*/
+    ImGui::Render();
 
     //glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
@@ -252,15 +255,15 @@ int main()
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     //glBindVertexArray(0);
-    //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
-  /*ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
-  ImGui::DestroyContext();*/
+  ImGui::DestroyContext();
 
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
