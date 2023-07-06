@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -82,7 +83,7 @@ public:
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
   }
-
+ 
   void use()
   {
     glUseProgram(ID);
@@ -100,8 +101,15 @@ public:
   {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value); 
   }
+  void setVec3(const std::string &name, float red, float green, float blue) const
+  {
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), red, green, blue);  
+  }
 
-
+  /*void setMat4(const std::string &name, float e) const
+  {
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), red, green, blue);  
+  }*/
 
 private:
   void checkCompileErrors(unsigned int shader , std::string type)
