@@ -1,3 +1,7 @@
 build
+models
+external/assimp
+textures/face.jpg
+
 #imgui
 #compile.sh

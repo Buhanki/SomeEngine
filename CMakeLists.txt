@@ -3,9 +3,6 @@ cmake_minimum_required(VERSION 3.2)
 set(PROJECT_NAME SomeEngine)
 project(${PROJECT_NAME} C CXX)
 
-#find_package(glm REQUIRED)
-#find_package(imgui REQUIRED)
-
 add_executable(${PROJECT_NAME} 
   sources/main.cpp
   sources/imgui.cpp
