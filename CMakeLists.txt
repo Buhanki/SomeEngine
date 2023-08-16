@@ -29,4 +29,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glad)
 add_subdirectory(external/glm)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm)
 
+add_subdirectory(external/assimp)
+target_link_libraries(${PROJECT_NAME} PUBLIC assimp)
+
 target_include_directories(${PROJECT_NAME} PUBLIC headers/)
